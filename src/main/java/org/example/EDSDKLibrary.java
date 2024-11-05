@@ -7,7 +7,9 @@ import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 public interface EDSDKLibrary extends Library {
-    EDSDKLibrary INSTANCE = (EDSDKLibrary) Native.load("EDSDK", EDSDKLibrary.class);
+
+
+    EDSDKLibrary INSTANCE = (EDSDKLibrary) Native.load("EDSDK.dll", EDSDKLibrary.class);
 
 
     int EdsInitializeSDK();
