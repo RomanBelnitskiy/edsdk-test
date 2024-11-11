@@ -8,7 +8,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 public interface EDSDKLibrary extends Library {
 
-
     EDSDKLibrary INSTANCE = (EDSDKLibrary) Native.load("EDSDK.dll", EDSDKLibrary.class);
 
 

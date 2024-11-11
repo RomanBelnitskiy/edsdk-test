@@ -10,7 +10,7 @@ import java.io.OutputStream;
 
 public class Main {
     public static void main(String[] args) {
-        EDSDKLibraryRealization start = new EDSDKLibraryRealization();
+        EDSDKLoader start = new EDSDKLoader();
         EDSDKLibrary sdk = EDSDKLibrary.INSTANCE;
 
         // Initialize the SDK
