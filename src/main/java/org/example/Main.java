@@ -1,12 +1,9 @@
 package org.example;
 
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -36,7 +33,9 @@ public class Main {
             }
 
             // Open a session with the camera
-            if (sdk.EdsOpenSession(cameraRef.getValue()) != 0) {
+            int openSessionResult = sdk.EdsOpenSession(cameraRef.getValue());
+            if (openSessionResult != 0) {
+                System.err.println("Error opening session with code " + openSessionResult);
                 System.err.println("Failed to open camera session.");
                 return;
             }
@@ -52,30 +51,44 @@ public class Main {
             // Wait for the camera to save the image, then access the directory item
             PointerByReference directoryItemRef = new PointerByReference();
             if (sdk.EdsGetChildAtIndex(cameraRef.getValue(), 0, directoryItemRef) != 0) {
-                System.err.println("Failed to access directory item.");
-                return;
+                // Retry (wait for capturing and saving image by camera)
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ignore) {}
+                if (sdk.EdsGetChildAtIndex(cameraRef.getValue(), 0, directoryItemRef) != 0) {
+                    System.err.println("Failed to access directory item.");
+                    return;
+                }
             }
 
-            // Get the file size of the directory item
-            NativeLongByReference fileSizeRef = new NativeLongByReference();
+            // Get the directory item
             sdk.EdsGetChildAtIndex(directoryItemRef.getValue(), 0, directoryItemRef);
 
-            // Prepare file stream for download
+            // Prepare file for download
             File outputFile = new File("captured_image.jpg");
-            try (OutputStream outputStream = new FileOutputStream(outputFile)) {
 
-                // Download the image to the specified file
-                if (sdk.EdsDownload(directoryItemRef.getValue(), fileSizeRef, Pointer.NULL) != 0) {
-                    System.err.println("Failed to download image.");
-                } else {
-                    System.out.println("Image downloaded successfully to " + outputFile.getAbsolutePath());
-                }
+            // 2. Create file stream
+            PointerByReference streamRef = new PointerByReference();
+            sdk.EdsCreateFileStream(
+                    outputFile.getAbsolutePath(),
+                    CanonConstants.kEdsFileCreateDisposition_CreateAlways,
+                    CanonConstants.kEdsAccess_ReadWrite,
+                    streamRef);
 
-            } catch (Exception e) {
-                System.err.println("Error saving image: " + e.getMessage());
+            // 4. Download image
+            NativeLongByReference fileSizeRef = new NativeLongByReference();
+            if (sdk.EdsDownload(directoryItemRef.getValue(), fileSizeRef, streamRef.getValue()) != 0) {
+                System.err.println("Failed to download image file.");
             }
 
+            // 5. Complete download
+            sdk.EdsDownloadComplete(streamRef.getValue());
+
+            System.out.println("Image downloaded successfully to " + outputFile.getAbsolutePath());
+
+
             // Release directory item and camera list
+            sdk.EdsRelease(streamRef.getValue());
             sdk.EdsRelease(directoryItemRef.getValue());
             sdk.EdsRelease(cameraListRef.getValue());
 

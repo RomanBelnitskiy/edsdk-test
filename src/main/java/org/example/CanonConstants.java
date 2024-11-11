@@ -19,4 +19,14 @@ public class CanonConstants {
     public static final int kEdsCameraCommand_SetModeDialDisable =      0x00000113;
 
                                                                                     // начало видео\ конец
+
+    public static final int kEdsAccess_Read             = 0;
+    public static final int kEdsAccess_Write            = 1;
+    public static final int kEdsAccess_ReadWrite        = 2;
+
+    public static final int kEdsFileCreateDisposition_CreateNew         = 0;
+    public static final int kEdsFileCreateDisposition_CreateAlways      = 1;
+    public static final int kEdsFileCreateDisposition_OpenExisting      = 2;
+    public static final int kEdsFileCreateDisposition_OpenAlways        = 3;
+    public static final int kEdsFileCreateDisposition_TruncateExisting  = 4;
 }

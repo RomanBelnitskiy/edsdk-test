@@ -25,4 +25,8 @@ public interface EDSDKLibrary extends Library {
     // New methods for image download
     int EdsGetChildAtIndex(Pointer camera, int index, PointerByReference directoryItem);
     int EdsDownload(Pointer directoryItem, NativeLongByReference fileSize, Pointer outputStream);
+
+    int EdsCreateFileStream(String inFileName, int inCreateDisposition, int inDesiredAccess, PointerByReference outStream);
+
+    void EdsDownloadComplete(Pointer value);
 }
