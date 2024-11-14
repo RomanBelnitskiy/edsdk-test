@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bfbd512a-6a79-440a-b4df-41b74139fd91" name="Changes" comment="load lib from jar">
+    <list default="true" id="bfbd512a-6a79-440a-b4df-41b74139fd91" name="Changes" comment="write loaded image">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/EdsDirectoryItemInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/EdsProgressCallback.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/CanonConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/CanonConstants.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/EDSDKLibrary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/EDSDKLibrary.java" afterDir="false" />
@@ -20,6 +22,7 @@
       <list>
         <option value="Interface" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -34,26 +37,31 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "Maven.edsdk_test [clean,package].executor": "Run",
-    "Maven.edsdk_test [clean].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Projects/libs/EDSDKv131810W/Windows/EDSDK_64/Dll/EDSDK.dll",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.edsdk_test [clean,package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.edsdk_test [clean].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Projects/edsdk_test/src/main/java/org/example&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Projects\edsdk_test\src\main\java\org\example" />
+    </key>
+  </component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="mvn clean" />
@@ -97,7 +105,14 @@
       <option name="presentableId" value="Default" />
       <updated>1730800036627</updated>
       <workItem from="1730800037723" duration="5001000" />
-      <workItem from="1731333287692" duration="11321000" />
+      <workItem from="1731333287692" duration="11944000" />
+      <workItem from="1731399530749" duration="684000" />
+      <workItem from="1731401211366" duration="11492000" />
+      <workItem from="1731422449861" duration="4448000" />
+      <workItem from="1731481795190" duration="161000" />
+      <workItem from="1731506639080" duration="3901000" />
+      <workItem from="1731515823026" duration="2557000" />
+      <workItem from="1731568625430" duration="1908000" />
     </task>
     <task id="LOCAL-00001" summary="second commit">
       <option name="closed" value="true" />
@@ -123,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731339213656</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="write loaded image">
+      <option name="closed" value="true" />
+      <created>1731361706495</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1731361706495</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,6 +155,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="second commit" />
     <MESSAGE value="load lib from jar" />
-    <option name="LAST_COMMIT_MESSAGE" value="load lib from jar" />
+    <MESSAGE value="write loaded image" />
+    <option name="LAST_COMMIT_MESSAGE" value="write loaded image" />
   </component>
 </project>

@@ -29,4 +29,10 @@ public class CanonConstants {
     public static final int kEdsFileCreateDisposition_OpenExisting      = 2;
     public static final int kEdsFileCreateDisposition_OpenAlways        = 3;
     public static final int kEdsFileCreateDisposition_TruncateExisting  = 4;
+
+    public static final int kEdsProgressOption_Done             = 1;
+    public static final int kEdsProgressOption_Periodically = 2;
+
+    public static final int kEdsPropID_AFMode = 0x00000404;
+    public static final int kEdsAFMode_Manual = 0x00000003;
 }

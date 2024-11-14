@@ -1,101 +1,157 @@
 package org.example;
 
-import com.sun.jna.ptr.NativeLongByReference;
+import com.sun.jna.NativeLong;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-import java.io.File;
+import static org.example.CanonConstants.*;
 
 public class Main {
     public static void main(String[] args) {
         EDSDKLoader start = new EDSDKLoader();
         EDSDKLibrary sdk = EDSDKLibrary.INSTANCE;
 
-        // Initialize the SDK
-        if (sdk.EdsInitializeSDK() != 0) {
+
+        // Step 1: Initialize SDK
+        int result = sdk.EdsInitializeSDK();
+        if (result != 0) {
             System.err.println("Failed to initialize Canon SDK.");
             return;
         }
         System.out.println("Canon SDK initialized successfully.");
 
         try {
-            // Get the camera list
+            // Step 2: Get camera list and first connected camera
             PointerByReference cameraListRef = new PointerByReference();
-            if (sdk.EdsGetCameraList(cameraListRef) != 0) {
+            result = sdk.EdsGetCameraList(cameraListRef);
+            if (result != 0) {
                 System.err.println("Failed to get camera list.");
                 return;
             }
 
-            // Get the first camera
             PointerByReference cameraRef = new PointerByReference();
-            if (sdk.EdsGetChildAtIndex(cameraListRef.getValue(), 0, cameraRef) != 0) {
+            result = sdk.EdsGetChildAtIndex(cameraListRef.getValue(), 0, cameraRef);
+            if (result != 0) {
                 System.err.println("Failed to get camera.");
                 return;
             }
 
-            // Open a session with the camera
-            int openSessionResult = sdk.EdsOpenSession(cameraRef.getValue());
-            if (openSessionResult != 0) {
-                System.err.println("Error opening session with code " + openSessionResult);
+            // Step 3: Open session
+            result = sdk.EdsOpenSession(cameraRef.getValue());
+            if (result != 0) {
+                System.err.println("Error opening session with code " + result);
                 System.err.println("Failed to open camera session.");
                 return;
             }
             System.out.println("Camera session opened successfully.");
 
-            // Take a picture
-            if (sdk.EdsSendCommand(cameraRef.getValue(), CanonConstants.kEdsCameraCommand_TakePicture, 0) != 0) {
-                System.err.println("Failed to take picture.");
+            // Step 4: (Optional) Adjust camera settings, if necessary
+
+            // Step 5: Capture image
+            result = sdk.EdsSendCommand(cameraRef.getValue(), kEdsCameraCommand_TakePicture, 0);
+            if (result != 0) {
+                System.err.println("Failed to take picture. Error: " + result);
                 return;
             }
             System.out.println("Picture taken successfully.");
 
-            // Wait for the camera to save the image, then access the directory item
-            PointerByReference directoryItemRef = new PointerByReference();
-            if (sdk.EdsGetChildAtIndex(cameraRef.getValue(), 0, directoryItemRef) != 0) {
-                // Retry (wait for capturing and saving image by camera)
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ignore) {}
-                if (sdk.EdsGetChildAtIndex(cameraRef.getValue(), 0, directoryItemRef) != 0) {
-                    System.err.println("Failed to access directory item.");
-                    return;
+            // Step 6: Wait for image to be available (e.g., using a delay or event listener)
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ignore) {}
+
+            // Step 7: Access the volume (memory card)
+            PointerByReference volumeRef = new PointerByReference();
+            result = sdk.EdsGetChildAtIndex(cameraRef.getValue(), 0, volumeRef);
+            if (result != 0) {
+                System.err.println("Failed to take volume. Error: " + result);
+                return;
+            }
+            System.out.println("Volume taken successfully.");
+
+            PointerByReference dirDcimItemRef = new PointerByReference();
+            result = sdk.EdsGetChildAtIndex(volumeRef.getValue(), 0, dirDcimItemRef);
+            if (result != 0) {
+                System.err.println("Failed to retrieve DCIM item. Error: " + result);
+            }
+            System.out.println("DCIM Directory item retrieved successfully.");
+
+            PointerByReference dir100CanonItemRef = new PointerByReference();
+            result = sdk.EdsGetChildAtIndex(dirDcimItemRef.getValue(), 0, dir100CanonItemRef);
+            if (result != 0) {
+                System.err.println("Failed to retrieve 100CANON item. Error: " + result);
+            }
+            System.out.println("100CANON Directory item retrieved successfully.");
+
+            LongByReference imageCount = new LongByReference();
+            result = sdk.EdsGetChildCount(dir100CanonItemRef.getValue(), imageCount);
+            if (result != 0) {
+                System.err.println("Failed to retrieve images from 100CANON directory. Error: " + result);
+                return;
+            }
+            System.out.println("Images count: " + imageCount.getValue());
+
+            for (int j = 0; j < imageCount.getValue(); j++) {
+                System.out.println("Image : " + j);
+                // Get ref for image
+                PointerByReference imageItemRef = new PointerByReference();
+                result = sdk.EdsGetChildAtIndex(dir100CanonItemRef.getValue(), j, imageItemRef);
+                if (result != 0) {
+                    System.err.println("Failed to retrieve image item. Error: " + result);
                 }
+
+                // Get image info
+                EdsDirectoryItemInfo imageItemInfo = new EdsDirectoryItemInfo();
+                result = sdk.EdsGetDirectoryItemInfo(imageItemRef.getValue(), imageItemInfo);
+                if (result != 0 || imageItemInfo.size == 0) {
+                    System.err.println("Failed to retrieve image item info or size is 0. Error: " + result);
+                    System.out.println("Image file size: " + imageItemInfo.size);
+                    System.out.println("Image file name: " + new String(imageItemInfo.szFileName));
+                    sdk.EdsRelease(imageItemRef.getValue());  // Release invalid ref
+                    continue;
+                }
+                System.out.println("Image file size: " + imageItemInfo.size);
+
+                // Check if this is an image file
+                if (imageItemInfo.size > 0) {
+                    // Step 10: Download the image
+                    PointerByReference outStream = new PointerByReference();
+                    result = sdk.EdsCreateFileStream("captured_image_" + j + ".jpg",
+                            kEdsFileCreateDisposition_CreateAlways,
+                            kEdsAccess_ReadWrite,
+                            outStream);
+                    if (result != 0) {
+                        System.err.println("Failed to create output stream. Error: " + result);
+                    }
+
+                    result = sdk.EdsDownload(imageItemRef.getValue(), new NativeLong(imageItemInfo.size), outStream.getValue());
+                    if (result != 0) {
+                        System.err.println("Failed to download image. Error: " + result);
+                    }
+
+                    result = sdk.EdsDownloadComplete(imageItemRef.getValue());
+                    if (result != 0) {
+                        System.err.println("Failed to download complete. Error: " + result);
+                    }
+
+                    // Release the file stream
+                    sdk.EdsRelease(outStream.getValue());
+                }
+                // Release the image reference
+                sdk.EdsRelease(imageItemRef.getValue());
             }
 
-            // Get the directory item
-            sdk.EdsGetChildAtIndex(directoryItemRef.getValue(), 0, directoryItemRef);
+            // Release directory item reference
+            sdk.EdsRelease(dir100CanonItemRef.getValue());
+            sdk.EdsRelease(dirDcimItemRef.getValue());
 
-            // Prepare file for download
-            File outputFile = new File("captured_image.jpg");
+            // Step 11: Release volume reference
+            sdk.EdsRelease(volumeRef.getValue());
 
-            // 2. Create file stream
-            PointerByReference streamRef = new PointerByReference();
-            sdk.EdsCreateFileStream(
-                    outputFile.getAbsolutePath(),
-                    CanonConstants.kEdsFileCreateDisposition_CreateAlways,
-                    CanonConstants.kEdsAccess_ReadWrite,
-                    streamRef);
-
-            // 4. Download image
-            NativeLongByReference fileSizeRef = new NativeLongByReference();
-            if (sdk.EdsDownload(directoryItemRef.getValue(), fileSizeRef, streamRef.getValue()) != 0) {
-                System.err.println("Failed to download image file.");
-            }
-
-            // 5. Complete download
-            sdk.EdsDownloadComplete(streamRef.getValue());
-
-            System.out.println("Image downloaded successfully to " + outputFile.getAbsolutePath());
-
-
-            // Release directory item and camera list
-            sdk.EdsRelease(streamRef.getValue());
-            sdk.EdsRelease(directoryItemRef.getValue());
+            // Step 12: Close session and release resources
+            sdk.EdsCloseSession(cameraRef.getValue());
+            sdk.EdsRelease(cameraRef.getValue());
             sdk.EdsRelease(cameraListRef.getValue());
-
-            // Close the camera session
-            if (sdk.EdsCloseSession(cameraRef.getValue()) != 0) {
-                System.err.println("Failed to close camera session.");
-            }
 
         } finally {
             // Terminate the SDK
